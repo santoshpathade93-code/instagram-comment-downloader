@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insta Comment Downloader</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #10101c;
+  color: white;
+}
+header {
+  padding: 22px;
+  text-align: center;
+  background: linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);
+}
+header h1 { margin: 0; font-size: 25px; }
+header p { margin-bottom: 0; }
+.container {
+  max-width: 550px;
+  margin: 45px auto;
+  padding: 25px;
+  background: #1d1d2c;
+  border-radius: 15px;
+  width: 92%;
+}
+h2 { text-align: center; }
+input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #29293a;
+  color: white;
+  margin: 15px 0;
+}
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg,#833ab4,#fd1d1d);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+#result { margin-top: 20px; }
+.comment {
+  padding: 12px;
+  margin: 10px 0;
+  background: #29293a;
+  border-radius: 8px;
+}
+.note {
+  color: #ffcf70;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.5;
+}
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #aaa;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📸 Insta Comment Downloader</h1>
+  <p>Instagram Comments Tool</p>
+</header>
+
+<div class="container">
+  <h2>Download Instagram Comments</h2>
+  <p>Paste your Instagram post or Reel link:</p>
+  <input type="url" id="instaUrl" placeholder="https://www.instagram.com/p/...">
+  <button onclick="getComments()">Get Comments</button>
+  <div id="result"></div>
+  <p class="note">Demo version: The comments shown are sample comments, not real Instagram data.</p>
+</div>
+
+<footer>
+  © 2026 Insta Comment Downloader
+</footer>
+
+<script>
+let comments = [];
+function getComments() {
+  const url = document.getElementById("instaUrl").value.trim();
+  const result = document.getElementById("result");
+  if (!url.includes("instagram.com/") || !/instagram\.com\/(p|reel|tv)\//.test(url)) {
+    alert("Please enter a valid Instagram post or Reel link.");
+    return;
+  }
+  comments = [
+    { username: "user_123", comment: "Amazing post!" },
+    { username: "user_456", comment: "Very nice ❤️" },
+    { username: "user_789", comment: "Beautiful!" },
+    { username: "user_321", comment: "Love this post!" }
+  ];
+  result.innerHTML = "<h3>Sample Comments</h3>";
+  comments.forEach(function(item) {
+    result.innerHTML += `
+      <div class="comment">
+        <b>@${item.username}</b>
+        <p>${item.comment}</p>
+      </div>
+    `;
+  });
+  result.innerHTML += `<button onclick="downloadCSV()">Download CSV</button>`;
+}
+
+function downloadCSV() {
+  if (comments.length === 0) return;
+  let csv = "Username,Comment\n";
+  comments.forEach(function(item) {
+    csv += `"${item.username}","${item.comment}"\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "instagram_comments_demo.csv";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+</script>
+
+</body>
+</html>
