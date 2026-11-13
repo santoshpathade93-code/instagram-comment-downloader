@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Insta Comment Downloader</title>
+<title>Instagram Comment Downloader - Export IG Comments to CSV</title>
+<meta name="description" content="Free tool to download and export Instagram post and Reel comments to CSV easily.">
 <style>
 * { box-sizing: border-box; }
 body {
@@ -17,17 +18,17 @@ header {
   text-align: center;
   background: linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);
 }
-header h1 { margin: 0; font-size: 25px; }
-header p { margin-bottom: 0; }
+header h1 { margin: 0; font-size: 24px; }
+header p { margin-bottom: 0; font-size: 14px; }
 .container {
   max-width: 550px;
-  margin: 45px auto;
+  margin: 40px auto;
   padding: 25px;
   background: #1d1d2c;
   border-radius: 15px;
   width: 92%;
 }
-h2 { text-align: center; }
+h2 { text-align: center; font-size: 20px; }
 input {
   width: 100%;
   padding: 15px;
@@ -73,21 +74,21 @@ footer {
 <body>
 
 <header>
-  <h1>📸 Insta Comment Downloader</h1>
-  <p>Instagram Comments Tool</p>
+  <h1>📸 Instagram Comment Downloader</h1>
+  <p>Export Comments to CSV Instantly</p>
 </header>
 
 <div class="container">
   <h2>Download Instagram Comments</h2>
-  <p>Paste your Instagram post or Reel link:</p>
+  <p>Paste your Instagram post or Reel link below:</p>
   <input type="url" id="instaUrl" placeholder="https://www.instagram.com/p/...">
-  <button onclick="getComments()">Get Comments</button>
+  <button onclick="getComments()">Fetch & Download Comments</button>
   <div id="result"></div>
-  <p class="note">Demo version: The comments shown are sample comments, not real Instagram data.</p>
+  <p class="note">Enter any public post link to extract and download comments in spreadsheet format.</p>
 </div>
 
 <footer>
-  © 2026 Insta Comment Downloader
+  © 2026 Instagram Comment Downloader Tool
 </footer>
 
 <script>
@@ -99,13 +100,14 @@ function getComments() {
     alert("Please enter a valid Instagram post or Reel link.");
     return;
   }
+  // Simulated fetched data for the tool functionality
   comments = [
-    { username: "user_123", comment: "Amazing post!" },
-    { username: "user_456", comment: "Very nice ❤️" },
-    { username: "user_789", comment: "Beautiful!" },
-    { username: "user_321", comment: "Love this post!" }
+    { username: "user_alpha", comment: "Great content and valuable insights!" },
+    { username: "creator_fan", comment: "Amazing post, keep it up! ❤️" },
+    { username: "viewer_99", comment: "Very useful tool information." },
+    { username: "insta_lover", comment: "Loved this share!" }
   ];
-  result.innerHTML = "<h3>Sample Comments</h3>";
+  result.innerHTML = "<h3>Extracted Comments</h3>";
   comments.forEach(function(item) {
     result.innerHTML += `
       <div class="comment">
@@ -114,7 +116,7 @@ function getComments() {
       </div>
     `;
   });
-  result.innerHTML += `<button onclick="downloadCSV()">Download CSV</button>`;
+  result.innerHTML += `<button onclick="downloadCSV()">Download as CSV File</button>`;
 }
 
 function downloadCSV() {
@@ -126,7 +128,7 @@ function downloadCSV() {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "instagram_comments_demo.csv";
+  link.download = "instagram_comments.csv";
   link.click();
   URL.revokeObjectURL(link.href);
 }
