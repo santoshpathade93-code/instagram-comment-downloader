@@ -8,7 +8,13 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar Calculator</title>
+    
+    <!-- SEO Meta Tags for Google Search -->
+    <title>Solar Calculator - Calculate Rooftop Solar Savings & Subsidy</title>
+    <meta name="description" content="Use the best Solar Calculator to check your electricity bill savings, PM Surya Ghar subsidy, and recommended kW system for your home.">
+    <meta name="keywords" content="Solar Calculator, Solar Panel Calculator Nagpur, PM Surya Ghar Subsidy, Solar Savings Estimator">
+    <meta name="author" content="Santosh Solar Solutions">
+
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .main-wrapper { max-width: 480px; width: 100%; }
