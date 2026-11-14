@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string, Response
+from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
@@ -8,77 +8,70 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Comment Downloader</title>
+    <title>Solar Subsidy & Savings Calculator</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); text-align: center; max-width: 450px; width: 100%; }
-        h1 { color: #333; font-size: 22px; margin-bottom: 15px; }
-        input[type="text"], textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: Arial, sans-serif; }
-        textarea { resize: vertical; height: 100px; }
-        button { background-color: #E1306C; color: white; border: none; padding: 10px 15px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
-        button:hover { background-color: #C13584; }
-        .download-btn { background-color: #2e7d32; }
-        .download-btn:hover { background-color: #1b5e20; }
-        #result { margin-top: 15px; font-weight: bold; color: #333; text-align: left; max-height: 200px; overflow-y: auto; font-size: 14px; background: #f9f9f9; padding: 10px; border-radius: 5px; }
-        .info { font-size: 13px; color: #666; margin-bottom: 15px; text-align: left; }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); max-width: 450px; width: 100%; }
+        h1 { color: #2e7d32; font-size: 20px; text-align: center; margin-bottom: 5px; }
+        .subtitle { font-size: 13px; color: #666; text-align: center; margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 14px; color: #333; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #1b5e20; }
+        #result { margin-top: 20px; background: #e8f5e9; padding: 15px; border-radius: 8px; display: none; font-size: 14px; color: #2e7d32; line-height: 1.6; }
+        .whatsapp-btn { background-color: #25d366; margin-top: 15px; display: block; text-align: center; text-decoration: none; color: white; padding: 12px; border-radius: 5px; font-weight: bold; font-size: 15px; }
+        .whatsapp-btn:hover { background-color: #1ebe5d; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Instagram Comment Downloader</h1>
-        <div class="info">टीप: इन्स्टाग्रामच्या सिक्युरिटीमुळे थेट लिंक चालत नाही, म्हणून खाली तुम्ही कमेंट्स पेस्ट करून त्यांची फाईल बनवू शकता.</div>
+        <h1>☀️ सोलर सबसिडी व बचत कॅल्क्युलेटर</h1>
+        <div class="subtitle">तुमचे विजेचे बिल टाका आणि तապसा किती सबसिडी मिळेल!</div>
         
-        <input type="text" id="postUrl" placeholder="Paste Instagram Post URL...">
-        <textarea id="commentsInput" placeholder="कमेंट्स इथे पेस्ट करा (प्रत्येक ओळीत एक कमेंट)..."></textarea>
+        <label>महिन्याचे सरासरी वीज बिल (₹):</label>
+        <input type="number" id="billAmount" placeholder="उदा. 2500">
         
-        <button onclick="processComments()">Process Comments</button>
-        <button class="download-btn" onclick="downloadFile()">Download as TXT File</button>
+        <button onclick="calculateSolar()">कॅल्क्युलेट करा</button>
         
-        <div id="result">इथे प्रक्रिया केलेल्या कमेंट्स दिसतील...</div>
+        <div id="result">
+            <h3 style="margin:0 0 10px 0; color:#1b5e20; font-size:16px;">अंदाजे हिशोब:</h3>
+            <div id="resCapacity"></div>
+            <div id="resSubsidy"></div>
+            <div id="resSavings"></div>
+            <a id="whatsappLink" class="whatsapp-btn" target="_blank">📲 थेट व्हॉट्सॲपवर कोटेशन मागवा</a>
+        </div>
     </div>
 
     <script>
-        let savedComments = "";
-
-        function processComments() {
-            const commentsText = document.getElementById('commentsInput').value;
-            const resultDiv = document.getElementById('result');
-            
-            if(!commentsText.trim()) {
-                alert('कृपया काहीतरी कमेंट्स पेस्ट करा!');
+        function calculateSolar() {
+            const bill = parseFloat(document.getElementById('billAmount').value);
+            if(!bill || bill <= 0) {
+                alert('कृपया वैध वीज बिल रक्कम टाka!');
                 return;
             }
 
-            savedComments = commentsText;
-            const lines = commentsText.split('\\n').filter(line => line.trim() !== '');
-            
-            let html = `<b>एकूण कमेंट्स: ${lines.length}</b><br><br>`;
-            lines.forEach((c, index) => {
-                html += `${index + 1}. ${c}<br>`;
-            });
-            resultDiv.innerHTML = html;
-        }
+            let units = bill / 8;
+            let kw = Math.ceil(units / 120); 
+            if(kw < 1) kw = 1;
+            if(kw > 10) kw = 10;
 
-        async function downloadFile() {
-            if(!savedComments.trim()) {
-                alert('डाऊनलोड करण्यासाठी पहिले कमेंट्स प्रोसेस करा!');
-                return;
-            }
+            let subsidy = 0;
+            if(kw == 1) subsidy = 30000;
+            else if(kw == 2) subsidy = 60000;
+            else if(kw >= 3) subsidy = 78000;
 
-            const response = await fetch('/download-txt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ comments: savedComments })
-            });
+            let monthlySavings = bill * 0.85;
+
+            document.getElementById('resCapacity').innerHTML = `<b>शिफारस केलेले सोलर युनिट:</b> ${kw} kW`;
+            document.getElementById('resSubsidy').innerHTML = `<b>सरकारी अंदाजे सबसिडी:</b> ₹${subsidy.toLocaleString('en-IN')}`;
+            document.getElementById('resSavings').innerHTML = `<b>दरमहा अंदाजे बचत:</b> ₹${Math.round(monthlySavings).toLocaleString('en-IN')}`;
             
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'instagram_comments.txt';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            // तुमचा व्हॉट्सॲप नंबर 9226127472 जोडलेला आहे
+            let phone = "919226127472"; 
+            let msg = `नमस्कार, मला माझ्या घरी ${kw} kW चा सोलर बसवायचा आहे. वीज बिल सुमारे ₹${bill} येते. मला अधिक माहिती हवी आहे.`;
+            document.getElementById('whatsappLink').href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            
+            document.getElementById('result').style.display = 'block';
         }
     </script>
 </body>
@@ -88,17 +81,6 @@ HTML_TEMPLATE = """
 @app.route('/')
 def home():
     return render_template_string(HTML_TEMPLATE)
-
-@app.route('/download-txt', methods=['POST'])
-def download_txt():
-    data = request.get_json()
-    comments = data.get('comments', '')
-    
-    return Response(
-        comments,
-        mimetype="text/plain",
-        headers={"Content-Disposition": "attachment;filename=instagram_comments.txt"}
-    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
