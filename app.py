@@ -18,7 +18,9 @@ HTML_TEMPLATE = """
         input[type="text"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         button { background-color: #E1306C; color: white; border: none; padding: 10px 15px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; }
         button:hover { background-color: #C13584; }
-        #result { margin-top: 15px; font-weight: bold; color: #333; text-align: left; max-height: 200px; overflow-y: auto; font-size: 14px; background: #f9f9f9; padding: 10px; border-radius: 5px; }
+        #result { margin-top: 15px; font-weight: bold; color: #333; text-align: left; max-height: 250px; overflow-y: auto; font-size: 14px; background: #f9f9f9; padding: 10px; border-radius: 5px; }
+        .error { color: #d9534f; }
+        .success { color: #2e7d32; }
     </style>
 </head>
 <body>
@@ -26,7 +28,7 @@ HTML_TEMPLATE = """
         <h1>Instagram Comment Downloader</h1>
         <input type="text" id="postUrl" placeholder="Paste Instagram Post URL...">
         <button onclick="fetchComments()">Download Comments</button>
-        <div id="result">इथे कमेंट्स दिसतील...</div>
+        <div id="result">इथे कमेंट्स किंवा स्टेटस दिसेल...</div>
     </div>
 
     <script>
@@ -37,7 +39,7 @@ HTML_TEMPLATE = """
                 alert('कृपया इन्स्टाग्रामची वैध लिंक टाका!');
                 return;
             }
-            resultDiv.innerHTML = "इन्स्टाग्रामवरून कमेंट्स फेच करत आहे, कृपया थोडा वेळ वाट पहा...";
+            resultDiv.innerHTML = "कमेंट्स फेच करत आहे, कृपया वाट पहा...";
             
             try {
                 const response = await fetch('/download', {
@@ -48,16 +50,16 @@ HTML_TEMPLATE = """
                 const data = await response.json();
                 
                 if(data.status === "success") {
-                    let html = `<b>एकूण कमेंट्स: ${data.count}</b><br><br>`;
+                    let html = `<div class="success"><b>एकूण कमेंट्स: ${data.count}</b></div><br>`;
                     data.comments.forEach(c => {
                         html += `- <b>${c.author}</b>: ${c.text}<br>`;
                     });
                     resultDiv.innerHTML = html;
                 } else {
-                    resultDiv.innerHTML = "एरर: " + data.message;
+                    resultDiv.innerHTML = `<div class="error"><b>टीप:</b> ${data.message}</div>`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = "काहीतरी तांत्रिक अडचण आली आहे.";
+                resultDiv.innerHTML = `<div class="error">काहीतरी तांत्रिक अडचण आली आहे.</div>`;
             }
         }
     </script>
@@ -80,20 +82,22 @@ def download():
     
     shortcode = extract_shortcode(post_url)
     if not shortcode:
-        return jsonify({"status": "error", "message": "अवैध इन्स्टाग्राम पोस्ट लिंक!"})
+        return jsonify({"status": "error", "message": "अवैध इन्स्टाग्राम पोस्ट किंवा रील लिंक!"})
     
     try:
         L = instaloader.Instaloader()
         post = instaloader.Post.from_shortcode(L.context, shortcode)
         
         comments_list = []
-        # सुरक्षिततेसाठी जास्तीत जास्त २० कमेंट्स फेच करूया
         count = 0
         for comment in post.get_comments():
             comments_list.append({"author": comment.owner.username, "text": comment.text})
             count += 1
-            if count >= 20: 
+            if count >= 15: 
                 break
+                
+        if not comments_list:
+            return jsonify({"status": "error", "message": "या पोस्टवर कोणतीही कमेंट उपलब्ध नाही किंवा कमेंट्स लपवलेल्या आहेत."})
                 
         return jsonify({
             "status": "success", 
@@ -101,9 +105,10 @@ def download():
             "comments": comments_list
         })
     except Exception as e:
+        # क्लाउड होस्टिंगवर इन्स्टाग्रामचे येणारे ब्लॉक टाळण्यासाठी युजरला समजेल असा मेसेज
         return jsonify({
             "status": "error", 
-            "message": "इन्स्टाग्राम सर्व्हरने रीतसर ब्लॉक केले किंवा पोस्ट खाजगी (Private) आहे."
+            "message": "इन्स्टाग्रामच्या सुरक्षा नियमांमुळे (Cloud IP Blocking) क्लाउड सर्वورवरून थेट कॉमेंट्स फेच करणे शक्य नाही. इन्स्टाग्राम विना-लॉगिन रिक्वेस्ट्स ब्लॉक करत आहे."
         })
 
 if __name__ == '__main__':
