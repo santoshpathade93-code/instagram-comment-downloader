@@ -8,11 +8,11 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar Savings & Financing Estimator</title>
+    <title>Solar Calculator</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0px 8px 24px rgba(0,0,0,0.5); max-width: 480px; width: 100%; border: 1px solid #333; }
-        h1 { color: #f39c12; font-size: 20px; text-align: center; margin-bottom: 5px; }
+        h1 { color: #f39c12; font-size: 22px; text-align: center; margin-bottom: 5px; }
         .subtitle { font-size: 13px; color: #aaa; text-align: center; margin-bottom: 25px; }
         .card { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #3d3d3d; }
         label { font-size: 13px; color: #bbb; display: block; margin-bottom: 8px; }
@@ -27,8 +27,8 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>☀️ SOLGURU STYLE ESTIMATOR</h1>
-        <div class="subtitle">Calculate your savings. Plan your investment.</div>
+        <h1>☀️ Solar Calculator</h1>
+        <div class="subtitle">Calculate your savings & plan your installation.</div>
         
         <div class="card">
             <label>Monthly Electricity Bill (₹)</label>
