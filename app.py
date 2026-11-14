@@ -24,15 +24,6 @@ HTML_TEMPLATE = """
         .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; border-bottom: 1px dashed #444; padding-bottom: 8px; }
         .whatsapp-btn { background-color: #25d366; margin-top: 15px; display: block; text-align: center; text-decoration: none; color: white; padding: 12px; border-radius: 5px; font-weight: bold; font-size: 15px; }
         .whatsapp-btn:hover { background-color: #1ebe5d; }
-        
-        /* Extra Professional Sections Styling */
-        .info-section { background: #1e1e1e; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
-        .info-section h3 { color: #f39c12; font-size: 16px; margin-top: 0; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
-        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .feature-box { background: #2a2a2a; padding: 10px; border-radius: 6px; font-size: 12px; text-align: center; border: 1px solid #3d3d3d; }
-        .faq-item { margin-bottom: 10px; font-size: 13px; }
-        .faq-q { color: #f39c12; font-weight: bold; margin-bottom: 3px; }
-        .faq-a { color: #aaa; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -56,4 +47,90 @@ HTML_TEMPLATE = """
             
             <div id="result">
                 <h3 style="margin:0 0 15px 0; color:#f39c12; font-size:16px; text-align:center;">📊 Estimated Summary</h3>
-                <div class="result-row"><span>Recommended System
+                <div class="result-row"><span>Recommended System:</span> <b id="resCapacity">-</b></div>
+                <div class="result-row"><span>Estimated Total Cost:</span> <b id="resTotalCost">-</b></div>
+                <div class="result-row"><span>PM Surya Ghar Subsidy:</span> <b style="color: #2ecc71;" id="resSubsidy">-</b></div>
+                <div class="result-row"><span>Net Investment Cost:</span> <b id="resNetCost">-</b></div>
+                <div class="result-row"><span>Monthly Savings:</span> <b style="color: #2ecc71;" id="resSavings">-</b></div>
+                <div class="result-row"><span>Payback Period:</span> <b id="resPayback">-</b></div>
+                
+                <a id="whatsappLink" class="whatsapp-btn" target="_blank">📲 Connect via WhatsApp</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateBillFromRange() {
+            let val = document.getElementById('billRange').value;
+            document.getElementById('billInput').value = val;
+            document.getElementById('billText').innerText = '₹' + Number(val).toLocaleString('en-IN');
+            calculate();
+        }
+
+        function updateBillFromInput() {
+            let val = document.getElementById('billInput').value;
+            if(val) {
+                document.getElementById('billRange').value = val;
+                document.getElementById('billText').innerText = '₹' + Number(val).toLocaleString('en-IN');
+                calculate();
+            }
+        }
+
+        function updateRate() {
+            let val = document.getElementById('rateRange').value;
+            document.getElementById('rateText').innerText = '₹' + val + ' / unit';
+            calculate();
+        }
+
+        function calculate() {
+            let bill = parseFloat(document.getElementById('billInput').value);
+            let rate = parseFloat(document.getElementById('rateRange').value);
+            
+            if(!bill || bill <= 0) return;
+
+            let units = bill / rate;
+            let kw = Math.ceil(units / 120);
+            if(kw < 1) kw = 1;
+            if(kw > 10) kw = 10;
+
+            let costPerKw = 55000;
+            let totalCost = kw * costPerKw;
+
+            let subsidy = 0;
+            if(kw == 1) subsidy = 30000;
+            else if(kw == 2) subsidy = 60000;
+            else if(kw >= 3) subsidy = 78000;
+
+            let netCost = totalCost - subsidy;
+            if(netCost < 10000) netCost = 10000;
+
+            let monthlySavings = bill * 0.85;
+            let yearlySavings = monthlySavings * 12;
+            let paybackYears = (netCost / yearlySavings).toFixed(1);
+
+            document.getElementById('resCapacity').innerText = kw + ' kW System';
+            document.getElementById('resTotalCost').innerText = '₹' + totalCost.toLocaleString('en-IN');
+            document.getElementById('resSubsidy').innerText = '- ₹' + subsidy.toLocaleString('en-IN');
+            document.getElementById('resNetCost').innerText = '₹' + netCost.toLocaleString('en-IN');
+            document.getElementById('resSavings').innerText = '₹' + Math.round(monthlySavings).toLocaleString('en-IN') + '/mo';
+            document.getElementById('resPayback').innerText = paybackYears + ' years';
+
+            let phone = "919226127472";
+            let msg = `Hello, I want to install a ${kw} kW solar system. My monthly bill is ₹${bill}. Estimated net cost is ₹${netCost.toLocaleString('en-IN')}. Please provide a quotation.`;
+            document.getElementById('whatsappLink').href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            
+            document.getElementById('result').style.display = 'block';
+        }
+
+        window.onload = calculate;
+    </script>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_TEMPLATE)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
