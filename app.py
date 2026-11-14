@@ -12,7 +12,7 @@ HTML_TEMPLATE = """
     <style>
         body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0px 8px 24px rgba(0,0,0,0.5); max-width: 480px; width: 100%; border: 1px solid #333; }
-        h1 { color: #f39c12; font-size: 22px; text-align: center; margin-bottom: 5px; }
+        h1 { color: #f39c12; font-size: 20px; text-align: center; margin-bottom: 5px; }
         .subtitle { font-size: 13px; color: #aaa; text-align: center; margin-bottom: 25px; }
         .card { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #3d3d3d; }
         label { font-size: 13px; color: #bbb; display: block; margin-bottom: 8px; }
@@ -73,4 +73,61 @@ HTML_TEMPLATE = """
             }
         }
 
-        function updateRate
+        function updateRate() {
+            let val = document.getElementById('rateRange').value;
+            document.getElementById('rateText').innerText = '₹' + val + ' / unit';
+            calculate();
+        }
+
+        function calculate() {
+            let bill = parseFloat(document.getElementById('billInput').value);
+            let rate = parseFloat(document.getElementById('rateRange').value);
+            
+            if(!bill || bill <= 0) return;
+
+            let units = bill / rate;
+            let kw = Math.ceil(units / 120);
+            if(kw < 1) kw = 1;
+            if(kw > 10) kw = 10;
+
+            let costPerKw = 55000;
+            let totalCost = kw * costPerKw;
+
+            let subsidy = 0;
+            if(kw == 1) subsidy = 30000;
+            else if(kw == 2) subsidy = 60000;
+            else if(kw >= 3) subsidy = 78000;
+
+            let netCost = totalCost - subsidy;
+            if(netCost < 10000) netCost = 10000;
+
+            let monthlySavings = bill * 0.85;
+            let yearlySavings = monthlySavings * 12;
+            let paybackYears = (netCost / yearlySavings).toFixed(1);
+
+            document.getElementById('resCapacity').innerText = kw + ' kW System';
+            document.getElementById('resTotalCost').innerText = '₹' + totalCost.toLocaleString('en-IN');
+            document.getElementById('resSubsidy').innerText = '- ₹' + subsidy.toLocaleString('en-IN');
+            document.getElementById('resNetCost').innerText = '₹' + netCost.toLocaleString('en-IN');
+            document.getElementById('resSavings').innerText = '₹' + Math.round(monthlySavings).toLocaleString('en-IN') + '/mo';
+            document.getElementById('resPayback').innerText = paybackYears + ' years';
+
+            let phone = "919226127472";
+            let msg = `Hello, I want to install a ${kw} kW solar system. My monthly bill is ₹${bill}. Estimated net cost is ₹${netCost.toLocaleString('en-IN')}. Please provide a quotation.`;
+            document.getElementById('whatsappLink').href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            
+            document.getElementById('result').style.display = 'block';
+        }
+
+        window.onload = calculate;
+    </script>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_TEMPLATE)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
